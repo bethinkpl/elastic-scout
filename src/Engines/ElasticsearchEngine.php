@@ -102,8 +102,8 @@ class ElasticsearchEngine extends Engine
     public function searchRaw($model, $query)
     {
         $defaults = [
-            'index' => $this->index,
-            'type'  => $model->searchableAs(),
+            'index' => $model->searchableAs(),
+            'type'  => get_class($model),
         ];
 
         return $this->elastic->search(array_merge($defaults, $query));
@@ -111,11 +111,9 @@ class ElasticsearchEngine extends Engine
 
     public function savePhrase($model, $params)
     {
-        $type = $model->searchableAs();
-
         $this->elastic->index([
-            'index' => $this->index,
-            'type'  => $type . '_search_phrases',
+            'index' => $model->searchableAs(),
+            'type'  => get_class($model) . '_search_phrases',
             'body'  => $params,
         ]);
     }
@@ -164,7 +162,7 @@ class ElasticsearchEngine extends Engine
                                 'query_string' => [
                                     'query'            => "*{$builder->query}* OR {$builder->query}~",
                                     'analyze_wildcard' => true,
-                                    'all_fields'       => true,
+                                    'default_field'       => '*',
                                 ],
                             ],
                         ],
