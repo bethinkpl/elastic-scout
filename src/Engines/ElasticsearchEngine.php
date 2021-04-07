@@ -1,6 +1,6 @@
 <?php
 
-namespace ScoutEngines\Elasticsearch;
+namespace ScoutEngines\Elasticsearch\Engines;
 
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
@@ -10,16 +10,9 @@ use Illuminate\Database\Eloquent\Collection;
 class ElasticsearchEngine extends Engine
 {
     /**
-     * Index where the models will be saved.
+     * Elastic client.
      *
-     * @var string
-     */
-    protected $index;
-    
-    /**
-     * Elastic where the instance of Elastic|\Elasticsearch\Client is stored.
-     *
-     * @var object
+     * @var Elastic
      */
     protected $elastic;
 
@@ -30,10 +23,9 @@ class ElasticsearchEngine extends Engine
      *
      * @return void
      */
-    public function __construct(Elastic $elastic, $index)
+    public function __construct(Elastic $elastic)
     {
         $this->elastic = $elastic;
-        $this->index = $index;
     }
 
     /**
@@ -45,15 +37,19 @@ class ElasticsearchEngine extends Engine
      */
     public function update($models)
     {
+        if ($models->isEmpty()) {
+            return;
+        }
+
         $params['body'] = [];
 
         $models->each(function ($model) use (&$params) {
             $params['body'][] = [
                 'update' => [
-                    '_id'    => $model->getKey(),
-                    '_index' => $this->index,
-                    '_type'  => $model->searchableAs(),
-                ],
+                    '_id' => $model->getScoutKey(),
+                    '_index' => $model->searchableAs(),
+                    '_type' => get_class($model),
+                ]
             ];
             $params['body'][] = [
                 'doc'           => $model->toSearchableArray(),
@@ -78,10 +74,10 @@ class ElasticsearchEngine extends Engine
         $models->each(function ($model) use (&$params) {
             $params['body'][] = [
                 'delete' => [
-                    '_id'    => $model->getKey(),
-                    '_index' => $this->index,
-                    '_type'  => $model->searchableAs(),
-                ],
+                    '_id' => $model->getKey(),
+                    '_index' => $model->searchableAs(),
+                    '_type' => get_class($model),
+                ]
             ];
         });
 
@@ -106,8 +102,8 @@ class ElasticsearchEngine extends Engine
     public function searchRaw($model, $query)
     {
         $defaults = [
-            'index' => $this->index,
-            'type'  => $model->searchableAs(),
+            'index' => $model->searchableAs(),
+            'type'  => get_class($model),
         ];
 
         return $this->elastic->search(array_merge($defaults, $query));
@@ -115,11 +111,9 @@ class ElasticsearchEngine extends Engine
 
     public function savePhrase($model, $params)
     {
-        $type = $model->searchableAs();
-
         $this->elastic->index([
-            'index' => $this->index,
-            'type'  => $type . '_search_phrases',
+            'index' => $model->searchableAs(),
+            'type'  => get_class($model) . '_search_phrases',
             'body'  => $params,
         ]);
     }
@@ -158,8 +152,8 @@ class ElasticsearchEngine extends Engine
     protected function performSearch(Builder $builder, array $options = [])
     {
         $params = [
-            'index' => $this->index,
-            'type'  => $builder->index ?: $builder->model->searchableAs(),
+            'index' => $builder->model->searchableAs(),
+            'type'  => get_class($builder->model),
             'body'  => [
                 'query'     => [
                     'bool' => [
@@ -168,7 +162,7 @@ class ElasticsearchEngine extends Engine
                                 'query_string' => [
                                     'query'            => "*{$builder->query}* OR {$builder->query}~",
                                     'analyze_wildcard' => true,
-                                    'all_fields'       => true,
+                                    'default_field'       => '*',
                                 ],
                             ],
                         ],
@@ -196,8 +190,10 @@ class ElasticsearchEngine extends Engine
         }
 
         if (isset($options['numericFilters']) && count($options['numericFilters'])) {
-            $params['body']['query']['bool']['must'] = array_merge($params['body']['query']['bool']['must'],
-                $options['numericFilters']);
+            $params['body']['query']['bool']['must'] = array_merge(
+                $params['body']['query']['bool']['must'],
+                $options['numericFilters']
+            );
         }
 
         if ($builder->callback) {
@@ -258,11 +254,16 @@ class ElasticsearchEngine extends Engine
 
         $keys = collect($results['hits']['hits'])->pluck('_id')->values()->all();
 
+        $modelIdPositions = array_flip($keys);
+
         return $model->getScoutModelsByIds(
-                $builder, $keys
-            )->filter(function ($model) use ($keys) {
-                return in_array($model->getScoutKey(), $keys);
-            });
+            $builder,
+            $keys
+        )->filter(function ($model) use ($keys) {
+            return in_array($model->getScoutKey(), $keys);
+        })->sortBy(function ($model) use ($modelIdPositions) {
+            return $modelIdPositions[$model->getScoutKey()];
+        })->values();
     }
 
     /**
