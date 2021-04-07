@@ -1,6 +1,6 @@
 <?php
 
-namespace Tamayo\LaravelScoutElastic\Tests;
+namespace ScoutEngines\Elasticsearch\Tests;
 
 use Mockery;
 use Mockery\MockInterface;
@@ -9,8 +9,8 @@ use Laravel\Scout\Builder;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
-use Tamayo\LaravelScoutElastic\Engines\ElasticsearchEngine;
-use Tamayo\LaravelScoutElastic\Tests\Fixtures\SearchableModel;
+use ScoutEngines\Elasticsearch\Engines\ElasticsearchEngine;
+use ScoutEngines\Elasticsearch\Tests\Fixtures\SearchableModel;
 
 class ElasticsearchEngineTest extends TestCase
 {
@@ -29,7 +29,7 @@ class ElasticsearchEngineTest extends TestCase
                     'update' => [
                         '_id' => 1,
                         '_index' => 'table',
-                        '_type' => 'Tamayo\LaravelScoutElastic\Tests\Fixtures\SearchableModel',
+                        '_type' => 'ScoutEngines\Elasticsearch\Tests\Fixtures\SearchableModel',
                     ]
                 ],
                 [
@@ -53,7 +53,7 @@ class ElasticsearchEngineTest extends TestCase
                     'delete' => [
                         '_id' => 1,
                         '_index' => 'table',
-                        '_type' => 'Tamayo\LaravelScoutElastic\Tests\Fixtures\SearchableModel',
+                        '_type' => 'ScoutEngines\Elasticsearch\Tests\Fixtures\SearchableModel',
                     ]
                 ],
             ]
@@ -69,7 +69,7 @@ class ElasticsearchEngineTest extends TestCase
         $client = Mockery::mock(Client::class);
         $client->shouldReceive('search')->with([
             'index' => 'table',
-            'type' => 'Tamayo\LaravelScoutElastic\Tests\Fixtures\SearchableModel',
+            'type' => 'ScoutEngines\Elasticsearch\Tests\Fixtures\SearchableModel',
             'body' => [
                 'query' => [
                     'bool' => [

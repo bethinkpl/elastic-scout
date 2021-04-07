@@ -1,6 +1,6 @@
 <?php
 
-namespace Tamayo\LaravelScoutElastic\Tests\Fixtures;
+namespace ScoutEngines\Elasticsearch\Tests\Fixtures;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;

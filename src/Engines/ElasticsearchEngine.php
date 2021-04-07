@@ -1,6 +1,6 @@
 <?php
 
-namespace Tamayo\LaravelScoutElastic\Engines;
+namespace ScoutEngines\Elasticsearch\Engines;
 
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
