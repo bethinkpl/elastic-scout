@@ -112,7 +112,7 @@ class ElasticsearchEngine extends Engine
     public function savePhrase($model, $params)
     {
         $this->elastic->index([
-            'index' => $model->searchableAs(),
+            'index' => $model->searchableAs() . '_search_phrases',
             'type'  => get_class($model) . '_search_phrases',
             'body'  => $params,
         ]);
