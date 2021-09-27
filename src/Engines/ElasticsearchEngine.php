@@ -2,6 +2,7 @@
 
 namespace ScoutEngines\Elasticsearch\Engines;
 
+use Illuminate\Support\Arr;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 use Elasticsearch\Client as Elastic;
@@ -15,6 +16,13 @@ class ElasticsearchEngine extends Engine
      * @var Elastic
      */
     protected $elastic;
+
+    /**
+     * @var string[]
+     */
+    protected $metadata = [
+        'highlight',
+    ];
 
     /**
      * Create a new engine instance.
@@ -252,7 +260,8 @@ class ElasticsearchEngine extends Engine
             return $model->newCollection();
         }
 
-        $keys = collect($results['hits']['hits'])->pluck('_id')->values()->all();
+        $hits = collect($results['hits']['hits'])->keyBy('_id');
+        $keys = $hits->pluck('_id')->values()->all();
 
         $modelIdPositions = array_flip($keys);
 
@@ -261,6 +270,8 @@ class ElasticsearchEngine extends Engine
             $keys
         )->filter(function ($model) use ($keys) {
             return in_array($model->getScoutKey(), $keys);
+        })->each(function ($model) use ($hits) {
+            $this->setHitMetadata($model, $hits);
         })->sortBy(function ($model) use ($modelIdPositions) {
             return $modelIdPositions[$model->getScoutKey()];
         })->values();
@@ -307,5 +318,16 @@ class ElasticsearchEngine extends Engine
         return collect($builder->orders)->map(function ($order) {
             return [$order['column'] => $order['direction']];
         })->toArray();
+    }
+
+    protected function setHitMetadata($model, $hits)
+    {
+        $hit = $hits->get($model->getScoutKey());
+
+        if ($hit && method_exists($model, 'withScoutMetadata')) {
+            foreach (Arr::only($hit, $this->metadata) as $metadataKey => $metadataValue) {
+                $model->withScoutMetadata($metadataKey, $metadataValue);
+            }
+        }
     }
 }
