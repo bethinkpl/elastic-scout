@@ -1,6 +1,11 @@
+# Fork
+This is a fork of https://github.com/ErickTamayo/laravel-scout-elastic with a few changes:
+
+https://github.com/ErickTamayo/laravel-scout-elastic/compare/master...bethinkpl:master
+
 # Laravel Scout Elasticsearch Driver
 
-[![Latest Stable Version](https://poser.pugx.org/tamayo/laravel-scout-elastic/v)](//packagist.org/packages/tamayo/laravel-scout-elastic) [![Total Downloads](https://poser.pugx.org/tamayo/laravel-scout-elastic/downloads)](//packagist.org/packages/tamayo/laravel-scout-elastic) [![License](https://poser.pugx.org/tamayo/laravel-scout-elastic/license)](//packagist.org/packages/tamayo/laravel-scout-elastic) ![Build Status](https://travis-ci.org/ErickTamayo/laravel-scout-elastic.svg?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/bethinkpl/elastic-scout/v)](//packagist.org/packages/bethinkpl/elastic-scout) [![Total Downloads](https://poser.pugx.org/bethinkpl/elastic-scout/downloads)](//packagist.org/packages/bethinkpl/elastic-scout) [![License](https://poser.pugx.org/bethinkpl/elastic-scout/license)](//packagist.org/packages/bethinkpl/elastic-scout)
 
 This package provides a [Elasticsearch](https://www.elastic.co/products/elasticsearch) driver for Laravel Scout.
 
