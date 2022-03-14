@@ -49,6 +49,8 @@ class ElasticsearchEngine extends Engine
             return;
         }
 
+        $this->eagerLoadMissingRelations($models);
+
         $params['body'] = [];
 
         $models->each(function ($model) use (&$params) {
@@ -328,6 +330,22 @@ class ElasticsearchEngine extends Engine
             foreach (Arr::only($hit, $this->metadata) as $metadataKey => $metadataValue) {
                 $model->withScoutMetadata($metadataKey, $metadataValue);
             }
+        }
+    }
+
+    /**
+     * Searchable::makeAllSearchableUsing() isn't called when a single model is to be indexed.
+     * Let's load missing relations manually on every index update.
+     *
+     * See:
+     * - https://github.com/laravel/scout/pull/542
+     * - https://github.com/babenkoivan/elastic-scout-driver/issues/19
+     */
+    private function eagerLoadMissingRelations(Collection $models): void {
+        $model = $models->first();
+
+        if (is_array($model->searchableWith)) {
+            $models->loadMissing($model->searchableWith);
         }
     }
 }
