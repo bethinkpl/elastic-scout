@@ -63,7 +63,7 @@ class ElasticsearchEngine extends Engine
             ];
             $params['body'][] = [
                 'doc'           => $model->toSearchableArray(),
-                'doc_as_upsert' => true,
+                'doc_as_upsert' => $model->shouldSearchableUpsert(),
             ];
         });
 

@@ -24,4 +24,9 @@ trait Searchable
 			->searchableUsing()
 			->savePhrase($model, $params);
 	}
+
+    public function shouldSearchableUpsert(): bool
+    {
+        return true;
+    }
 }
