@@ -7,6 +7,10 @@ https://github.com/ErickTamayo/laravel-scout-elastic/compare/master...bethinkpl:
 
 [![Latest Stable Version](https://poser.pugx.org/bethinkpl/elastic-scout/v)](//packagist.org/packages/bethinkpl/elastic-scout) [![Total Downloads](https://poser.pugx.org/bethinkpl/elastic-scout/downloads)](//packagist.org/packages/bethinkpl/elastic-scout) [![License](https://poser.pugx.org/bethinkpl/elastic-scout/license)](//packagist.org/packages/bethinkpl/elastic-scout)
 
+## Archived
+
+I haven't had the time to dedicate work to this repo and I don't plan to do so in the future. 
+
 This package provides a [Elasticsearch](https://www.elastic.co/products/elasticsearch) driver for Laravel Scout.
 
 ## Contents
