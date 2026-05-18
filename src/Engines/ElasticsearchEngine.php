@@ -74,6 +74,7 @@ class ElasticsearchEngine extends Engine
      */
     public function update($models)
     {
+        gc_collect_cycles();
         if ($models->isEmpty()) {
             return;
         }
